@@ -1,11 +1,11 @@
 import uvicorn
-from database import InMemoryUserRepository, InMemoryTaskRepository
+from database import MySQLUserRepository, MySQLTaskRepository
 from core.service import UserService, TaskService
 from core.swagger_api import app, init_api
 
 # 1. Instancia os adaptadores de infraestrutura de banco de dados
-user_repo = InMemoryUserRepository()
-task_repo = InMemoryTaskRepository()
+user_repo = MySQLUserRepository()
+task_repo = MySQLTaskRepository()
 
 # 2. Instancia os serviços do Core injetando os repositórios
 user_service = UserService(user_repo)
