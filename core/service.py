@@ -5,6 +5,17 @@ from typing import Optional, Dict, Any, List
 from .domain.user import User
 from .domain.task import Task
 from .ports import UserRepositoryPort, TaskRepositoryPort
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from discord_bot import (
+    notify_user_created,
+    notify_user_deleted,
+    notify_task_created,
+    notify_task_updated,
+    notify_task_deleted,
+)
 
 SECRET_KEY = "super-secret-key-para-fins-de-demonstracao"
 ALGORITHM = "HS256"
@@ -18,7 +29,9 @@ class UserService:
             raise ValueError("Email já cadastrado.")
         data["password_hash"] = f"hashed_{data.get('password', '123')}"
         user = User.from_dict(data)
-        return self.repo.save(user.to_dict())
+        saved = self.repo.save(user.to_dict())
+        notify_user_created(saved["username"], saved["email"])
+        return saved
 
     def get_user(self, user_id: int) -> Dict[str, Any]:
         data = self.repo.find_by_id(user_id)
@@ -37,8 +50,9 @@ class UserService:
         return self.repo.save(user.to_dict())
 
     def delete_user(self, user_id: int) -> Dict[str, Any]:
-        self.get_user(user_id)
+        user = self.get_user(user_id)
         self.repo.delete(user_id)
+        notify_user_deleted(user["username"])
         return {"message": "Usuário removido com sucesso (Soft Delete)."}
 
     def login(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -78,7 +92,8 @@ class TaskService:
                 u_obj = User.from_dict(u_data)
                 u_obj.add_task_id(saved_task_dict["id"])
                 self.user_repo.save(u_obj.to_dict())
-                
+
+        notify_task_created(saved_task_dict["title"], saved_task_dict["status"])
         return saved_task_dict
 
     def get_task(self, task_id: int) -> Dict[str, Any]:
@@ -105,7 +120,9 @@ class TaskService:
             due_date=due_date_val,
             user_ids=data.get("user_ids")
         )
-        return self.task_repo.save(task.to_dict())
+        updated = self.task_repo.save(task.to_dict())
+        notify_task_updated(updated["title"], updated["status"])
+        return updated
 
     def delete_task(self, task_id: int) -> Dict[str, Any]:
         current_data = self.get_task(task_id)
@@ -117,4 +134,5 @@ class TaskService:
                 self.user_repo.save(u_obj.to_dict())
                 
         self.task_repo.delete(task_id)
+        notify_task_deleted(current_data["title"])
         return {"message": "Tarefa deletada com sucesso."}
