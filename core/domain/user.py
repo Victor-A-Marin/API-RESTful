@@ -94,7 +94,8 @@ class User:
 
     def add_task_id(self, task_id: int) -> None:
         """Associa o ID de uma task ao usuário."""
-        self.task_ids.append(task_id)
+        if task_id not in self.task_ids:
+            self.task_ids.append(task_id)
 
     def remove_task_id(self, task_id: int) -> None:
         """Remove o ID de uma task associada ao usuário."""

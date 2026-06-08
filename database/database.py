@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
 
 from sqlalchemy import create_engine, text, Column, Integer, String, Text, Date, DateTime, Enum
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 # ⚠️ Troca SUA_SENHA pela senha do seu MySQL
-DATABASE_URL = "mysql+pymysql://root:1234@localhost:3306/task_manager"
+DATABASE_URL = "mysql+pymysql://root:vam123@localhost:3306/task_manager"
 
 engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(bind=engine)
@@ -31,7 +31,7 @@ class UserModel(Base):
                         default="Usuário"
                     )
     deleted_at    = Column(DateTime, nullable=True, default=None)
-    created_at    = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at    = Column(DateTime, nullable=False, default=datetime.now(timezone.utc))
 
 
 class TaskModel(Base):
@@ -46,8 +46,8 @@ class TaskModel(Base):
                       default="pendente"
                   )
     due_date    = Column(Date, nullable=True)
-    created_at  = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at  = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at  = Column(DateTime, nullable=False, default=datetime.now(timezone.utc))
+    updated_at  = Column(DateTime, nullable=False, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
 
 class UserTaskModel(Base):
@@ -55,7 +55,7 @@ class UserTaskModel(Base):
 
     user_id     = Column(Integer, primary_key=True)
     task_id     = Column(Integer, primary_key=True)
-    assigned_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    assigned_at = Column(DateTime, nullable=False, default=datetime.now(timezone.utc))
 
 
 # ------------------------------------------------------------
@@ -110,7 +110,7 @@ class MySQLUserRepository:
             model = session.get(UserModel, user_id)
             if not model:
                 return False
-            model.deleted_at = datetime.utcnow()
+            model.deleted_at = datetime.now(timezone.utc)
             session.commit()
             return True
 

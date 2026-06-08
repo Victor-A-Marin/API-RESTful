@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import Optional, Dict, Any, List
 
 
@@ -118,7 +118,8 @@ class Task:
 
     def add_user_id(self, user_id: int) -> None:
         """Associa um usuário à task por ID."""
-        self.user_ids.append(user_id)
+        if user_id not in self.user_ids:
+            self.user_ids.append(user_id)
 
     def remove_user_id(self, user_id: int) -> None:
         """Remove a associação de usuário à task por ID."""
@@ -129,7 +130,7 @@ class Task:
         if self.due_date is None:
             return False
 
-        today = today or date.today()
+        today = today or datetime.now(timezone.utc).date()
         return self.status != self.STATUS_COMPLETE and self.due_date < today
 
     def to_dict(self) -> Dict[str, Any]:
