@@ -97,12 +97,28 @@ class MySQLUserRepository:
 
     def find_by_id(self, user_id: int) -> Optional[Dict[str, Any]]:
         with self.Session() as session:
-            model = session.get(UserModel, user_id)
+            model = (
+                session.query(UserModel)
+                .filter(
+                    UserModel.id == user_id,
+                    UserModel.deleted_at.is_(None)
+                )
+                .first()
+            )
+
             return self._to_dict(model) if model else None
 
     def find_by_email(self, email: str) -> Optional[Dict[str, Any]]:
         with self.Session() as session:
-            model = session.query(UserModel).filter_by(email=email).first()
+            model = (
+                session.query(UserModel)
+                .filter(
+                    UserModel.email == email,
+                    UserModel.deleted_at.is_(None)
+                )
+                .first()
+            )
+
             return self._to_dict(model) if model else None
 
     def delete(self, user_id: int) -> bool:
@@ -183,15 +199,40 @@ class MySQLTaskRepository:
             user_ids = [r.user_id for r in session.query(UserTaskModel).filter_by(task_id=task_id).all()]
             return self._to_dict(model, user_ids)
 
-    def find_by_user_id(self, user_id: int) -> List[Dict[str, Any]]:
+    def find_by_user_id(
+        self,
+        user_id: int,
+        skip: int = 0,
+        limit: int = 100
+    ) -> List[Dict[str, Any]]:
         with self.Session() as session:
-            rows = session.query(UserTaskModel).filter_by(user_id=user_id).all()
+
+            tasks = (
+                session.query(TaskModel)
+                .join(
+                    UserTaskModel,
+                    TaskModel.id == UserTaskModel.task_id
+                )
+                .filter(UserTaskModel.user_id == user_id)
+                .offset(skip)
+                .limit(limit)
+                .all()
+            )
+
             result = []
-            for row in rows:
-                model = session.get(TaskModel, row.task_id)
-                if model:
-                    all_users = [r.user_id for r in session.query(UserTaskModel).filter_by(task_id=model.id).all()]
-                    result.append(self._to_dict(model, all_users))
+
+            for task in tasks:
+                user_ids = [
+                    row.user_id
+                    for row in session.query(UserTaskModel)
+                    .filter_by(task_id=task.id)
+                    .all()
+                ]
+
+                result.append(
+                    self._to_dict(task, user_ids)
+                )
+
             return result
 
     def delete(self, task_id: int) -> bool:
