@@ -12,3 +12,4 @@ email-validator==2.3.0
 pytest==9.0.3
 pytest-cov==7.1.0
 coverage==7.14.1
+httpx==0.28.1
