@@ -20,3 +20,15 @@ py -m venv .venv
 Isso irá criar seu ambiente virtual. Ative seu ambiente virtual usando .\.venv\Scripts\activate
 
 Finalmente, com o venv ativado no terminal, digite 'pip install -r requirements.txt'
+
+===============================================================================================
+
+
+                                                    COMO REALIZAR TESTES:
+
+após instalar todas as dependencias, basta abrir o terminal e rodar o(s) seguinte(s) comando(s)
+
+py -m pytest                                                 <-------          testes globais
+
+pytest .\tests\unit\[nome_do_arquivo.py]                     <-------          testes unitários
+                                                
