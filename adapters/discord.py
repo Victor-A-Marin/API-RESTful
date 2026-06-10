@@ -5,8 +5,8 @@ import os
 import requests
 
 class DiscordNotifierAdapter(NotificationPort):
-    def __init__(self):
-        self.webhook_url = os.getenv("DISCORD_WEBHOOK")
+    def __init__(self, webhook_url=None):
+        self.webhook_url = webhook_url or os.getenv("DISCORD_WEBHOOK")
 
     def _send(self, message: str):
         if not self.webhook_url:

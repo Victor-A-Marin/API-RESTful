@@ -19,7 +19,7 @@ py -m venv .venv
 
 Isso irá criar seu ambiente virtual. Ative seu ambiente virtual usando .\.venv\Scripts\activate
 
-Finalmente, com o venv ativado no terminal, digite 'pip install -r requirements.txt'
+Finalmente, com o venv ativado no terminal, digite 'pip install -r requirements.md'
 
 ===============================================================================================
 

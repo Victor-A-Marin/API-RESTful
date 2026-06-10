@@ -1,9 +1,23 @@
 @echo off
 title Iniciando API Hexagonal
 
+set PYTHON_CMD=python
+
+if exist ".venv\Scripts\python.exe" (
+    echo [+] Ambiente virtual encontrado: .venv
+    set PYTHON_CMD=.venv\Scripts\python.exe
+) else if exist "venv\Scripts\python.exe" (
+    echo [+] Ambiente virtual encontrado: venv
+    set PYTHON_CMD=venv\Scripts\python.exe
+) else if exist "env\Scripts\python.exe" (
+    echo [+] Ambiente virtual encontrado: env
+    set PYTHON_CMD=env\Scripts\python.exe
+) else (
+    echo [!] Nenhum ambiente virtual encontrado. Usando Python global.
+)
+
 echo [*] Ligando o servidor backend...
-:: Removemos o /min porque agora você PRECISA ver o terminal para digitar o Webhook
-start cmd /k "python main.py"
+start cmd /k "%PYTHON_CMD% main.py"
 
 timeout /t 2 /nobreak >nul
 

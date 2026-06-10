@@ -1,2 +1,6 @@
 .venv
 .coverage
+requirements_install.bat
+VENV_SETUP.md
+setup.py
+*.pyc
